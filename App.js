@@ -1,9 +1,14 @@
 import React, {Component} from 'react';
-import {SafeAreaView,View,StyleSheet,Text} from 'react-native';
+import {SafeAreaView,View,StyleSheet,Text, Alert} from 'react-native';
 import params from './src/params';
 import MineField from './src/components/MineField'
 import {
-  createMinedBoard
+  createMinedBoard,
+  cloneBoard,
+  openField,
+  hadExplosion,
+  wonGame,
+  showMines
 } from './src/functions';
 import Mine from './src/components/Mine';
 
@@ -24,9 +29,30 @@ export default class App extends Component {
     const cols = params.getColumnsAmout();
     const rows = params.getRowsAmout();
     return {
-      board: createMinedBoard(rows,cols, this.minesAmount())
+      board: createMinedBoard(rows,cols, this.minesAmount()),
+      won: false,
+      lost: false
     }
   }
+
+  onOpenField = (row, column) => {
+    const board = cloneBoard(this.state.board);
+    openField(board, row, column);
+    const lost = hadExplosion(board);
+    const won = wonGame(board);
+
+    if (lost) {
+      showMines(board);
+      Alert.alert('Perdeuuuuuuuu Otário!!!', 'Se fudeu!');
+    }
+
+    if (won) {
+      Alert.alert('PORRA NÃO FEZ MAIS QUE SUA OBRIGAÇÃO', 'VLW POR JOGAR');
+    }
+
+    this.setState({ board, lost, won});
+  }
+
   render() {
     return (
       <SafeAreaView style={styles.container}>
@@ -38,7 +64,8 @@ export default class App extends Component {
           {params.getRowsAmout()}x{params.getColumnsAmout()}
         </Text>
         <View style={styles.board}>
-          <MineField board={this.state.board} />
+          <MineField board={this.state.board}
+           onOpenField={this.onOpenField} />
         </View>
       </SafeAreaView>
     );

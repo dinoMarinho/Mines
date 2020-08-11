@@ -40,4 +40,4 @@ const createMinedBoard = (rows, columns, minesAmount) => {
     return board;
 }
 
-export {CreateMinedBoard}
+export {createMinedBoard}

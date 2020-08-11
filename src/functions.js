@@ -40,4 +40,69 @@ const createMinedBoard = (rows, columns, minesAmount) => {
     return board;
 }
 
-export {createMinedBoard}
+// Clona o tabuleiro para um tabuleiro virtual
+const cloneBoard = board => {
+    return board.map(rows => {
+        return rows.map( field =>{
+            return { ...field} //operador spread
+        });
+    });
+}
+
+// Recupera os campos vizinhos do local selecionado
+const getNeighbors = (board, row, column) => {
+    const neightbors = [];
+    const rows = [ row - 1, row, row + 1 ];
+    const columns = [column -1, column, column + 1];
+    rows.forEach( r => {
+        columns.forEach(c => {
+            const diferent = r !== row || c !== column;
+            const validRow = r >= 0 && r < board.length;
+            const validColumn = c >=0 && c < board.length;
+            if (different && validRow && validColumn) {
+                neightbors.push(board[r][c]);
+            }
+        });
+    });
+    return neightbors;
+}
+
+// Verifica se a vizinhança são seguros
+const safeNeighborhood = (board,row,column) => {
+    const safes = (result, neightbor) => result && !neightbor.mined
+    return getNeighbors(board,row, column).reduce(safes,true);
+}
+
+// Abre os campos
+const openField = (board,row,column) => {
+    const field = board[row][column];
+    if(!field.opened){
+        field.opened = true;
+        if(field.mined){
+            field.exploded = true;
+        } else if (safeNeighborhood(board, row, column)) {
+            //Usa a função de forma recursiva
+            getNeighbors(board, row, column).forEach( n => openField(board,n.row,n.column));
+        } else {
+            const neighbors = getNeighbors(board, row, column);
+            field.nearMines = neightbors.filter( n => n.mined).length;
+        }
+    }
+}
+
+// Transforma todo o tabuleiro em um array
+const fields = board => [].concat(...board);
+
+// Verifica se existe algum campo explodido
+const hadExplosion = board => fields(board).filter(field => field.exploded). lenght > 0;
+
+// Verifica se existe algum campo pendente
+const pendding = field => (field.mined && !field.flagged) || (!field.mined && !field.opened);
+
+// Verifica se o usuário ganhou o game
+const wonGame = board => fields(board).filter(pedding).lenght === 0;
+
+// Mostra todas as minas existentes
+const showMines = board => fields(board).filter(field => field.mined).forEach(field => field.opened = true);
+
+export { createMinedBoard, cloneBoard, openField, hadExplosion, wonGame, showMines }
